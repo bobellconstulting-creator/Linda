@@ -2,6 +2,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { DynamicStructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { Octokit } from "@octokit/rest";
+import TelegramBot from "node-telegram-bot-api";
 import { appendToSheet, readGoogleDoc } from "../utils/googleClient.js";
 
 const systemPrompt = `You are Linda, an Elite Senior Developer Assistant and autonomous co-worker.
@@ -142,6 +143,25 @@ const commitFileToGitHub = new DynamicStructuredTool({
   },
 });
 
+const sendTelegramNotification = new DynamicStructuredTool({
+  name: "sendTelegramNotification",
+  description: "Send a Telegram notification to the configured chat.",
+  schema: z.object({
+    message: z.string(),
+  }),
+  func: async ({ message }) => {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+      return "Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID";
+    }
+
+    const bot = new TelegramBot(token, { polling: false });
+    await bot.sendMessage(chatId, message);
+    return "Telegram notification sent";
+  },
+});
+
 export function createLindaAgent() {
   return {
     async handleWebhook({ event, payload }: { event: string; payload: Record<string, unknown> }) {
@@ -154,11 +174,18 @@ export function createLindaAgent() {
         summary,
       });
 
+      let result: string;
       if (action === "build-agent") {
-        return buildNewAgentRepo(summary);
+        result = await buildNewAgentRepo(summary);
+      } else {
+        result = await runAgent(summary);
       }
 
-      return runAgent(summary);
+      await sendTelegramNotification.func({
+        message: `Linda update: ${action} completed. Summary: ${summary}. Result: ${result}`,
+      });
+
+      return result;
     },
   };
 }
@@ -254,4 +281,5 @@ export const lindaTools = {
   readGoogleDoc: readGoogleDocTool,
   searchInternet,
   commitFileToGitHub,
+  sendTelegramNotification,
 };

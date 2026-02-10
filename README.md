@@ -73,6 +73,8 @@ GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\
 GOOGLE_SHEETS_ID=your_sheet_id
 GOOGLE_SHEETS_RANGE=Logs!A:D
 TAVILY_API_KEY=your_tavily_key
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_CHAT_ID=your_telegram_chat_id
 ```
 
 ### 3) Set up the GitHub App
@@ -122,3 +124,20 @@ The main logic lives in `src/agent/linda.ts` and defines:
 - Ensure the webhook secret is configured, otherwise requests are rejected.
 - The agent logs every event to Google Sheets if `GOOGLE_SHEETS_ID` is set.
 - The search tool uses Tavily by default; replace it with another search provider if desired.
+
+## Telegram Notifications
+
+Linda can send you updates via Telegram after she completes a task.
+
+1. **Create a bot**
+   - Open Telegram and search for **@BotFather**.
+   - Send `/newbot` and follow the prompts.
+   - BotFather will give you a **bot token**. Save it as `TELEGRAM_BOT_TOKEN`.
+
+2. **Get your chat ID**
+   - Start a chat with your new bot and send any message.
+   - Open `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates` in a browser.
+   - Find the `chat` → `id` number in the response. That is your `TELEGRAM_CHAT_ID`.
+
+3. **Add the env vars**
+   - Put `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in your `.env` (local) or your Vercel/Netlify environment settings.
