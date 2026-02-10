@@ -1,0 +1,25 @@
+{
+  "name": "linda",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "lint": "echo 'No lint configured'",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@langchain/openai": "^0.2.5",
+    "@octokit/rest": "^20.1.0",
+    "@octokit/webhooks": "^12.2.0",
+    "dotenv": "^16.4.5",
+    "googleapis": "^144.0.0",
+    "langchain": "^0.2.11",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}
